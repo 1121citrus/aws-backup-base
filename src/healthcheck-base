@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+# shellcheck shell=bash
+
+# Generic healthcheck for aws-backup-base derivative images.
+# All behavior is driven by environment variables.
+#
+# Copyright (C) 2025-2026 James Hanlon [mailto:jim@hanlonsoftware.com]
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# Required environment variables:
+#   HEALTHCHECK_SUCCESS_FILE   — path to the success marker file
+#   HEALTHCHECK_COMMAND_NAME   — binary path grepped in the crontab
+#
+# Optional environment variables:
+#   HEALTHCHECK_MAX_AGE_SECONDS       — default: 172800 (48 hours)
+#   HEALTHCHECK_STARTUP_GRACE_SECONDS — default: 900 (15 minutes)
+#   HEALTHCHECK_STARTUP_FILE          — startup marker file (skipped if unset)
+#   HEALTHCHECK_CRONTAB_FILE          — default: /var/spool/cron/crontabs/<username>
+
+ENV=${ENV:-${HOME:-/root}/.env}
+# shellcheck disable=SC1090
+[[ -r "${ENV}" ]] && source "${ENV}"
+
+# shellcheck disable=SC1091
+source "${INCLUDE_DIR:-/usr/local/include}/common-functions"
+
+set -o errexit -o errtrace -o nounset -o pipefail
+set +o xtrace +o verbose
+is_true "${DEBUG:-false}" && set -o xtrace -o verbose
+
+HEALTHCHECK_SUCCESS_FILE="${HEALTHCHECK_SUCCESS_FILE:?Need HEALTHCHECK_SUCCESS_FILE}"
+HEALTHCHECK_COMMAND_NAME="${HEALTHCHECK_COMMAND_NAME:?Need HEALTHCHECK_COMMAND_NAME}"
+HEALTHCHECK_MAX_AGE_SECONDS="${HEALTHCHECK_MAX_AGE_SECONDS:-172800}"
+HEALTHCHECK_STARTUP_GRACE_SECONDS="${HEALTHCHECK_STARTUP_GRACE_SECONDS:-900}"
+HEALTHCHECK_STARTUP_FILE="${HEALTHCHECK_STARTUP_FILE:-}"
+HEALTHCHECK_CRONTAB_FILE="${HEALTHCHECK_CRONTAB_FILE:-/var/spool/cron/crontabs/$(id -un)}"
+
+function epoch_modified() {
+    # Return the file's modification time as seconds since epoch.
+    # GNU stat (Linux/Alpine) uses -c %Y; BSD stat (macOS) uses -f %m.
+    local file=$1
+    stat -c %Y "${file}" 2>/dev/null || stat -f %m "${file}"
+}
+
+function has_cronjob_run() {
+    local now
+    now=$(date +%s)
+
+    local fresh_backup=false within_grace=false backup_age='' uptime=''
+
+    if [[ -f "${HEALTHCHECK_SUCCESS_FILE}" ]]; then
+        local last_success
+        last_success=$(epoch_modified "${HEALTHCHECK_SUCCESS_FILE}")
+        backup_age=$((now - last_success))
+        (( backup_age <= HEALTHCHECK_MAX_AGE_SECONDS )) && fresh_backup=true
+    fi
+
+    if [[ -n "${HEALTHCHECK_STARTUP_FILE}" && -f "${HEALTHCHECK_STARTUP_FILE}" ]]; then
+        local started_at
+        started_at=$(epoch_modified "${HEALTHCHECK_STARTUP_FILE}")
+        uptime=$((now - started_at))
+        (( uptime <= HEALTHCHECK_STARTUP_GRACE_SECONDS )) && within_grace=true
+    fi
+
+    "${fresh_backup}" && return 0
+    "${within_grace}" && return 0
+
+    if [[ -n "${backup_age}" ]]; then
+        error "latest successful backup is too old: ${backup_age}s > ${HEALTHCHECK_MAX_AGE_SECONDS}s"
+    fi
+    if [[ -n "${uptime}" ]]; then
+        error "startup grace period exceeded (${uptime}s > ${HEALTHCHECK_STARTUP_GRACE_SECONDS}s) with no successful backup"
+    fi
+    error "missing both startup and successful backup markers"
+}
+
+function is_supercronic_running() {
+    if pgrep -x supercronic >/dev/null 2>&1; then
+        true || info "supercronic is running"
+    else
+        error "supercronic is not running"
+    fi
+}
+
+function is_crontab_configured() {
+    if [[ -r "${HEALTHCHECK_CRONTAB_FILE}" ]] && \
+            grep -q "${HEALTHCHECK_COMMAND_NAME}" "${HEALTHCHECK_CRONTAB_FILE}"; then
+        return 0
+    else
+        error "crontab is not configured (command: ${HEALTHCHECK_COMMAND_NAME})"
+    fi
+}
+
+function is_healthy() {
+    is_crontab_configured && is_supercronic_running && has_cronjob_run
+}
+
+is_healthy || exit 1

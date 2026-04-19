@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# shellcheck shell=bash
+
+# Generic startup shim for aws-backup-base derivative images.
+#
+# Copyright (C) 2025-2026 James Hanlon [mailto:jim@hanlonsoftware.com]
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# Retained for deployments that set:
+#   entrypoint: /usr/local/bin/startup-base
+# Use the application binary directly with --cron in new deployments.
+#
+# Required environment variable:
+#   STARTUP_COMMAND — path to the application binary (e.g., /usr/local/bin/pfsense-backup)
+
+exec "${STARTUP_COMMAND:?Need STARTUP_COMMAND env var}" --cron "$@"
