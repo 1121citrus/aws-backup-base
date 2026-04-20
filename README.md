@@ -68,6 +68,17 @@ CMD ["/usr/local/bin/my-backup", "--cron"]
 | ---------------- | -------- | ---------------------------------------------- |
 | `STARTUP_COMMAND` | yes     | Application binary to exec with `--cron`       |
 
+## Development
+
+Run `./build` locally to lint, build, test, and scan before pushing.
+
+```sh
+./build              # full pipeline: lint → build → test → smoke → scan
+./build --no-scan    # skip vulnerability scans for fast iteration
+./build --dry-run    # print each command without executing
+./build --help       # full option reference
+```
+
 ## License
 
 AGPL-3.0-or-later — see [LICENSE](LICENSE).
