@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
 
-# -- GENERATED -- do not edit directly.
-# Template: src/build/generate @ f4d686d
-# Generated: 2026-04-20T21:07:47Z
-# Regenerate: bin/build-generate aws-backup-base
-
 # build — local CI equivalent for aws-backup-base.
 #
 # Copyright (C) 2025-2026 James Hanlon [mailto:jim@hanlonsoftware.com]
@@ -115,7 +110,7 @@ set -euo pipefail
 
 # -- GENERATED metadata (informational; enforcement is in CI) --
 # shellcheck disable=SC2034
-GENERATED_AT="2026-04-20T21:07:47Z"
+GENERATED_AT="2026-04-20T22:09:20Z"
 # shellcheck disable=SC2034
 GENERATED_FROM_SHA="f4d686d"
 
