@@ -2,8 +2,8 @@
 # shellcheck shell=bash
 
 # -- GENERATED -- do not edit directly.
-# Template: src/build/generate @ 5b0f656
-# Generated: 2026-04-19T22:09:51Z
+# Template: src/build/generate @ f4d686d
+# Generated: 2026-04-20T21:07:47Z
 # Regenerate: bin/build-generate aws-backup-base
 
 # build — local CI equivalent for aws-backup-base.
@@ -115,9 +115,9 @@ set -euo pipefail
 
 # -- GENERATED metadata (informational; enforcement is in CI) --
 # shellcheck disable=SC2034
-GENERATED_AT="2026-04-19T22:09:51Z"
+GENERATED_AT="2026-04-20T21:07:47Z"
 # shellcheck disable=SC2034
-GENERATED_FROM_SHA="5b0f656"
+GENERATED_FROM_SHA="f4d686d"
 
 # ---------------------------------------------------------------------------
 # Defaults — may be overridden by environment variables or CLI flags.
@@ -359,19 +359,28 @@ _timed() {
     local _watcher=$!
     wait "${_pid}" 2>/dev/null; local _rc=$?
     kill "${_watcher}" 2>/dev/null
-    wait "${_watcher}" 2>/dev/null
+    wait "${_watcher}" 2>/dev/null || true
     return "${_rc}"
 }
 
 # ---------------------------------------------------------------------------
 # Argument parsing
 # ---------------------------------------------------------------------------
+_require_value() {
+    local option="$1"
+    local value="${2:-}"
+    if [[ -z "${value}" || "${value}" == --* ]]; then
+        echo "${option} requires a value" >&2
+        exit 1
+    fi
+}
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --push)             PUSH=true ;;
-        --version)          VERSION="$2"; shift ;;
-        --platform)         PLATFORMS="$2"; shift ;;
-        --registry)         REGISTRY="$2"; shift ;;
+        --version)          _require_value "$1" "${2:-}"; VERSION="$2"; shift ;;
+        --platform)         _require_value "$1" "${2:-}"; PLATFORMS="$2"; shift ;;
+        --registry)         _require_value "$1" "${2:-}"; REGISTRY="$2"; shift ;;
         --no-sbom)          SBOM=false ;;
         --no-provenance)    PROVENANCE=false ;;
         --no-lint)          LINT=false ;;
@@ -472,6 +481,14 @@ fi
 if [[ "${CACHE_RESET_GRYPE}" == "true" ]]; then
     echo "==> Cache: reset Grype DB" >&2
     reset_cache_db "${GRYPE_CACHE_VOLUME}"
+fi
+
+if [[ "${CACHE_SKIP_UPDATE_TRIVY}" == "true" ]]; then
+    echo "    Trivy DB update skipped (--cache skip-update=trivy)" >&2
+fi
+
+if [[ "${CACHE_SKIP_UPDATE_GRYPE}" == "true" ]]; then
+    echo "    Grype DB update skipped (--cache skip-update=grype)" >&2
 fi
 
 echo "Image:     ${full_image}:${VERSION}" >&2
@@ -625,8 +642,6 @@ if [[ "${SCAN}" == "true" ]]; then
                 echo "    Warning: could not initialize Trivy DB cache; scan may be slow" >&2
             fi
         fi
-    else
-        echo "    Trivy DB update skipped (--cache skip-update=trivy)" >&2
     fi
 fi
 
@@ -688,7 +703,7 @@ if [[ "${SCAN_GRYPE}" == "true" ]]; then
             _grype_vol=(-v "${script_dir}/.grype.yaml:/.grype.yaml:ro")
             _grype_cfg=(--config /.grype.yaml)
         fi
-        _timed 300 docker run --rm \
+        _timed 600 docker run --rm \
             -v "${_scan_tar}:/scan.tar:ro" \
             -e "GRYPE_DB_CACHE_DIR=${GRYPE_DB_CACHE_DIR}" \
             -v "${GRYPE_CACHE_VOLUME}:${GRYPE_DB_CACHE_DIR}" \
