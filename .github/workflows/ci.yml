@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, staging]
+  schedule:
+    - cron: "0 6 * * 1"  # weekly Monday 06:00 UTC (scan job only)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Lint, build, test, smoke ──────────────────────────────────────────────
+  # Runs on every push, PR, and manual trigger.
+  lint-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Lint, build, test, and smoke
+        run: ./build --no-scan --no-advise --no-push
+
+  # ── CVE scan ─────────────────────────────────────────────────────────────
+  # Runs on the weekly schedule and manual trigger only; skipped on push/PR.
+  # Uses actions/cache rather than Docker volumes because GitHub runners are
+  # ephemeral and named volumes do not persist between jobs.
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: >
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch'
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image for scanning
+        run: ./build --no-lint --no-test --no-smoke --no-advise --no-push --version ci-scan
+
+      - name: Cache Trivy DB
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/trivy
+          key: trivy-${{ runner.os }}-${{ hashFiles('version.txt') }}
+          restore-keys: trivy-${{ runner.os }}-
+
+      - name: Scan with Trivy (CRITICAL and HIGH)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 1121citrus/aws-backup-base:ci-scan
+          format: sarif
+          output: trivy-results.sarif
+          exit-code: "1"
+          severity: CRITICAL,HIGH
+
+      - name: Cache Grype DB
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/grype
+          key: grype-${{ runner.os }}-${{ hashFiles('version.txt') }}
+          restore-keys: grype-${{ runner.os }}-
+
+      - name: Scan with Grype (critical severities)
+        uses: anchore/scan-action@v4
+        with:
+          image: 1121citrus/aws-backup-base:ci-scan
+          fail-build: true
+          severity-cutoff: critical
+
+      - name: Upload scan results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-results-${{ github.run_id }}
+          path: trivy-results.sarif
+          retention-days: 30
