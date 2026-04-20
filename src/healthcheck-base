@@ -87,11 +87,8 @@ function has_cronjob_run() {
 }
 
 function is_supercronic_running() {
-    if pgrep -x supercronic >/dev/null 2>&1; then
-        true || info "supercronic is running"
-    else
-        error "supercronic is not running"
-    fi
+    pgrep -x supercronic >/dev/null 2>&1 \
+        || error "supercronic is not running"
 }
 
 function is_crontab_configured() {
