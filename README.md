@@ -81,4 +81,4 @@ Run `./build` locally to lint, build, test, and scan before pushing.
 
 ## License
 
-AGPL-3.0-or-later — see [LICENSE](LICENSE).
+AGPL-3.0-or-later — see [LICENSE.md](LICENSE.md).
