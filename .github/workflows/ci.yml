@@ -59,7 +59,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build image for scanning
-        run: ./build --no-lint --no-test --no-smoke --no-advise --version ci-scan
+        run: ./build --no-lint --no-test --no-smoke --no-scan --no-advise --version ci-scan
 
       - name: Cache Trivy DB
         uses: actions/cache@v4
