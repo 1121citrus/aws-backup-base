@@ -16,9 +16,10 @@ Executes `./build --no-scan --no-advise`, which runs:
 3. Test — bats suite (`01-build.bats` through `05-startup-base.bats`)
 4. Smoke — built-image sanity check
 
-**Job: `scan`** *(schedule and manual dispatch only)*
+**Job: `scan`** *(push to main/staging, schedule, and manual dispatch)*
 
-Runs on the weekly Monday 06:00 UTC schedule. Builds the image tagged
+Runs on every push to `main` or `staging`, the weekly Monday 06:00 UTC
+schedule, and manual dispatch. Builds the image tagged
 `ci-scan`, then scans with:
 
 - Trivy (CRITICAL and HIGH; SARIF output uploaded as a 30-day artifact)
