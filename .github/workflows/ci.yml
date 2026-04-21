@@ -80,12 +80,6 @@ jobs:
           exit-code: "1"
           severity: CRITICAL,HIGH
 
-      - name: Cache Grype DB
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/grype
-          key: grype-${{ runner.os }}-${{ steps.week.outputs.stamp }}
-
       - name: Scan with Grype (critical severities)
         uses: anchore/scan-action@v4
         with:

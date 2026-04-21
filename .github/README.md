@@ -25,8 +25,11 @@ schedule, and manual dispatch. Builds the image tagged
 - Trivy (CRITICAL and HIGH; SARIF output uploaded as a 30-day artifact)
 - Grype (critical severity cutoff)
 
-Scanner DBs are cached with `actions/cache` keyed on `version.txt`.
-Named Docker volumes are not used because GitHub runners are ephemeral.
+The Trivy DB is cached with `actions/cache` keyed on the ISO year-week
+so it is fetched fresh at the start of each week. The Grype DB is not
+cached — it downloads fresh on every run to avoid stale-database
+failures. Named Docker volumes are not used because GitHub runners are
+ephemeral.
 
 ## `publish.yml` — Publish
 
