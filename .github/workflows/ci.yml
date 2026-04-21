@@ -65,6 +65,11 @@ jobs:
         id: week
         run: echo "stamp=$(date +%Y-W%V)" >> "${GITHUB_OUTPUT}"
 
+      - name: Check system time
+        run: |
+          date -u
+          timedatectl status || true
+
       - name: Cache Trivy DB
         uses: actions/cache@v4
         with:
@@ -80,6 +85,9 @@ jobs:
           exit-code: "1"
           severity: CRITICAL,HIGH
 
+      - name: Update Grype DB
+        run: grype db update
+    
       - name: Scan with Grype (critical severities)
         uses: anchore/scan-action@v4
         with:
