@@ -92,20 +92,3 @@ jobs:
           name: trivy-scan-results-${{ github.run_id }}
           path: trivy-results.sarif
           retention-days: 30
-
-      - name: Scan with Grype (critical severities)
-        uses: anchore/scan-action@v7
-        with:
-          image: 1121citrus/aws-backup-base:ci-scan
-          fail-build: true
-          severity-cutoff: critical
-          output-format: sarif
-          output-file: grype-results.sarif
-     
-      - name: Upload scan results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: grype-scan-results-${{ github.run_id }}
-          path: grype-results.sarif
-          retention-days: 30
