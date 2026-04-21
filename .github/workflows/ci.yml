@@ -84,6 +84,14 @@ jobs:
           output: trivy-results.sarif
           exit-code: "1"
           severity: CRITICAL,HIGH
+     
+      - name: Upload scan results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-scan-results-${{ github.run_id }}
+          path: trivy-results.sarif
+          retention-days: 30
 
       - name: Scan with Grype (critical severities)
         uses: anchore/scan-action@v7
@@ -91,12 +99,13 @@ jobs:
           image: 1121citrus/aws-backup-base:ci-scan
           fail-build: true
           severity-cutoff: critical
-          cache-db: true
-
+          output-format: sarif
+          output-file: grype-results.sarif
+     
       - name: Upload scan results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: scan-results-${{ github.run_id }}
+          name: trivy-scan-results-${{ github.run_id }}
           path: trivy-results.sarif
           retention-days: 30
