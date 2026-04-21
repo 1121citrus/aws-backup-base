@@ -85,15 +85,13 @@ jobs:
           exit-code: "1"
           severity: CRITICAL,HIGH
 
-      - name: Update Grype DB
-        run: grype db update
-    
       - name: Scan with Grype (critical severities)
-        uses: anchore/scan-action@v4
+        uses: anchore/scan-action@v7
         with:
           image: 1121citrus/aws-backup-base:ci-scan
           fail-build: true
           severity-cutoff: critical
+          cache-db: true
 
       - name: Upload scan results
         if: always()
