@@ -61,11 +61,15 @@ jobs:
       - name: Build image for scanning
         run: ./build --no-lint --no-test --no-smoke --no-scan --no-advise --version ci-scan
 
+      - name: Get weekly cache stamp
+        id: week
+        run: echo "stamp=$(date +%Y-W%V)" >> "${GITHUB_OUTPUT}"
+
       - name: Cache Trivy DB
         uses: actions/cache@v4
         with:
           path: ~/.cache/trivy
-          key: trivy-${{ runner.os }}-${{ hashFiles('version.txt') }}
+          key: trivy-${{ runner.os }}-${{ steps.week.outputs.stamp }}
           restore-keys: trivy-${{ runner.os }}-
 
       - name: Scan with Trivy (CRITICAL and HIGH)
@@ -81,7 +85,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/grype
-          key: grype-${{ runner.os }}-${{ hashFiles('version.txt') }}
+          key: grype-${{ runner.os }}-${{ steps.week.outputs.stamp }}
           restore-keys: grype-${{ runner.os }}-
 
       - name: Scan with Grype (critical severities)
