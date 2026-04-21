@@ -9,7 +9,7 @@ manual dispatch.
 
 **Job: `lint-and-test`**
 
-Executes `./build --no-scan --no-advise --no-push`, which runs:
+Executes `./build --no-scan --no-advise`, which runs:
 
 1. Lint — hadolint (Dockerfile), shellcheck, markdownlint
 2. Build — single-platform image loaded into the local Docker daemon

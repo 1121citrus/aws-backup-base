@@ -21,7 +21,7 @@ environment variable to be set to a built image reference.
 The `build` script runs the full suite automatically:
 
 ```sh
-./build --no-scan --no-advise --no-push
+./build --no-scan --no-advise
 ```
 
 To run individual files during development:

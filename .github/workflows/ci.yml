@@ -33,7 +33,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Lint, build, test, and smoke
-        run: ./build --no-scan --no-advise --no-push
+        run: ./build --no-scan --no-advise
 
   # ── CVE scan ─────────────────────────────────────────────────────────────
   # Runs on the weekly schedule and manual trigger only; skipped on push/PR.
@@ -57,7 +57,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build image for scanning
-        run: ./build --no-lint --no-test --no-smoke --no-advise --no-push --version ci-scan
+        run: ./build --no-lint --no-test --no-smoke --no-advise --version ci-scan
 
       - name: Cache Trivy DB
         uses: actions/cache@v4
