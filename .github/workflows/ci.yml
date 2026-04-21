@@ -70,7 +70,6 @@ jobs:
         with:
           path: ~/.cache/trivy
           key: trivy-${{ runner.os }}-${{ steps.week.outputs.stamp }}
-          restore-keys: trivy-${{ runner.os }}-
 
       - name: Scan with Trivy (CRITICAL and HIGH)
         uses: aquasecurity/trivy-action@master
@@ -86,7 +85,6 @@ jobs:
         with:
           path: ~/.cache/grype
           key: grype-${{ runner.os }}-${{ steps.week.outputs.stamp }}
-          restore-keys: grype-${{ runner.os }}-
 
       - name: Scan with Grype (critical severities)
         uses: anchore/scan-action@v4
