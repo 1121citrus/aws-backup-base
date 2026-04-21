@@ -1,23 +1,28 @@
 name: CI
 
 on:
-  pull_request:
   push:
     branches: [main, staging]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
   schedule:
     - cron: "0 6 * * 1"  # weekly Monday 06:00 UTC (scan job only)
   workflow_dispatch:
 
+# Cancel in-progress runs for branch/PR refs; let tag builds always complete.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
 permissions:
   contents: read
 
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+env:
+  IMAGE: 1121citrus/aws-backup-base
 
 jobs:
-  # ── Lint, build, test, smoke ──────────────────────────────────────────────
-  # Runs on every push, PR, and manual trigger.
+  # ── Stage 1: Lint, build, test, smoke ─────────────────────────────────────
   lint-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -35,18 +40,21 @@ jobs:
       - name: Lint, build, test, and smoke
         run: ./build --no-scan --no-advise
 
-  # ── CVE scan ─────────────────────────────────────────────────────────────
-  # Runs on the weekly schedule and manual trigger only; skipped on push/PR.
-  # Uses actions/cache rather than Docker volumes because GitHub runners are
-  # ephemeral and named volumes do not persist between jobs.
+  # ── Stage 2: CVE scan ─────────────────────────────────────────────────────
+  # Runs on push to main/staging, tag pushes, weekly schedule, and manual
+  # trigger.  Uses actions/cache rather than Docker volumes because GitHub
+  # runners are ephemeral and named volumes do not persist between jobs.
   scan:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: >
       github.event_name == 'schedule' ||
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'push' &&
-        (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'))
+      (github.event_name == 'push' && (
+        github.ref == 'refs/heads/main' ||
+        github.ref == 'refs/heads/staging' ||
+        startsWith(github.ref, 'refs/tags/v')
+      ))
     defaults:
       run:
         shell: bash
@@ -59,7 +67,10 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build image for scanning
-        run: ./build --no-lint --no-test --no-smoke --no-scan --no-advise --version ci-scan
+        run: >
+          ./build
+          --no-lint --no-test --no-smoke --no-scan --no-advise
+          --version ci-scan
 
       - name: Get weekly cache stamp
         id: week
@@ -79,12 +90,12 @@ jobs:
       - name: Scan with Trivy (CRITICAL and HIGH)
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 1121citrus/aws-backup-base:ci-scan
+          image-ref: ${{ env.IMAGE }}:ci-scan
           format: sarif
           output: trivy-results.sarif
           exit-code: "1"
           severity: CRITICAL,HIGH
-     
+
       - name: Upload scan results
         if: always()
         uses: actions/upload-artifact@v4
@@ -92,3 +103,19 @@ jobs:
           name: trivy-scan-results-${{ github.run_id }}
           path: trivy-results.sarif
           retention-days: 30
+
+  # ── Stage 3: Push to Docker Hub ───────────────────────────────────────────
+  # Runs only when a v* tag or the staging branch is pushed and all checks
+  # pass.  The shared workflow builds a multi-platform image and pushes it
+  # with SBOM and provenance attestations.
+  push:
+    needs: [lint-and-test, scan]
+    if: >
+      github.event_name == 'push' && (
+        startsWith(github.ref, 'refs/tags/v') ||
+        github.ref == 'refs/heads/staging'
+      )
+    uses: 1121citrus/shared-github-workflows/.github/workflows/push.yml@main
+    with:
+      image: 1121citrus/aws-backup-base
+    secrets: inherit
