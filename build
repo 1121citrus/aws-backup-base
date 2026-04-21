@@ -110,9 +110,9 @@ set -euo pipefail
 
 # -- GENERATED metadata (informational; enforcement is in CI) --
 # shellcheck disable=SC2034
-GENERATED_AT="2026-04-20T22:09:20Z"
+GENERATED_AT="2026-04-21T00:56:20Z"
 # shellcheck disable=SC2034
-GENERATED_FROM_SHA="f4d686d"
+GENERATED_FROM_SHA="6247022"
 
 # ---------------------------------------------------------------------------
 # Defaults — may be overridden by environment variables or CLI flags.
@@ -589,14 +589,14 @@ if [[ "${SMOKE}" == "true" ]]; then
     if [[ "${DRY_RUN}" == "true" ]]; then
         echo "[DRY RUN] docker run --rm \"${full_image}:${VERSION}\" aws --version" >&2
         echo "[DRY RUN] docker run --rm \"${full_image}:${VERSION}\" supercronic --version" >&2
-        echo "[DRY RUN] docker run --rm \"${full_image}:${VERSION}\" bash --version | head -1" >&2
+        echo "[DRY RUN] docker run --rm \"${full_image}:${VERSION}\" bash -c 'bash --version | head -1'" >&2
         echo "[DRY RUN] docker run --rm \"${full_image}:${VERSION}\" test -x /usr/local/bin/healthcheck-base" >&2
         echo "[DRY RUN] docker run --rm \"${full_image}:${VERSION}\" test -x /usr/local/bin/startup-base" >&2
         echo "[DRY RUN] docker run --rm \"${full_image}:${VERSION}\" test -r /usr/local/include/common-functions" >&2
     else
         docker run --rm "${full_image}:${VERSION}" aws --version
         docker run --rm "${full_image}:${VERSION}" supercronic --version
-        docker run --rm "${full_image}:${VERSION}" bash --version | head -1
+        docker run --rm "${full_image}:${VERSION}" bash -c 'bash --version | head -1'
         docker run --rm "${full_image}:${VERSION}" test -x /usr/local/bin/healthcheck-base
         docker run --rm "${full_image}:${VERSION}" test -x /usr/local/bin/startup-base
         docker run --rm "${full_image}:${VERSION}" test -r /usr/local/include/common-functions
