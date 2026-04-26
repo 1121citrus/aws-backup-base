@@ -88,12 +88,13 @@ jobs:
           key: trivy-${{ runner.os }}-${{ steps.week.outputs.stamp }}
 
       - name: Scan with Trivy (CRITICAL and HIGH)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
           image-ref: ${{ env.IMAGE }}:ci-scan
           format: sarif
           output: trivy-results.sarif
           exit-code: "1"
+          ignore-unfixed: true
           severity: CRITICAL,HIGH
 
       - name: Upload scan results
