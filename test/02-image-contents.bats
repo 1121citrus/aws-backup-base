@@ -33,7 +33,7 @@ setup() {
     run docker run --rm "${IMAGE}" jq --version
     [ "$status" -eq 0 ]
     echo "output: ${output}"
-    [[ "${output}" == *"jq-"* ]]
+    [[ "${output}" == *"jq"* ]]
 }
 
 @test "healthcheck-base is executable" {

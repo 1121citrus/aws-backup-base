@@ -21,20 +21,7 @@
 # Alpine 3.22
 ARG ALPINE_IMAGE_DIGEST=sha256:55ae5d250caebc548793f321534bc6a8ef1d116f334f18f4ada1b2daad3251b2
 # renovate: datasource=github-releases depName=aptible/supercronic
-ARG SUPERCRONIC_VERSION=v0.2.44
-
-# ── Supercronic build stage ────────────────────────────────────────────────
-# Builds supercronic from source with Go 1.26.2, which patches:
-#   CVE-2026-32280 (crypto/x509 DoS) HIGH
-#   CVE-2026-32282 (os.Root symlink traversal) MEDIUM
-#   CVE-2026-33810 (crypto/x509 cert validation bypass) HIGH
-# Remove this stage and restore the wget installation once an upstream
-# supercronic release ships with Go >= 1.26.2 (or >= 1.25.9).
-FROM golang:1.26.2-alpine AS supercronic-builder
-ARG SUPERCRONIC_VERSION
-RUN CGO_ENABLED=0 go install github.com/aptible/supercronic@${SUPERCRONIC_VERSION}
-
-# ── Final image ────────────────────────────────────────────────────────────
+ARG SUPERCRONIC_VERSION=v0.2.45
 
 ARG VERSION=dev
 
@@ -71,11 +58,7 @@ LABEL org.opencontainers.image.title="aws-backup-base" \
       org.opencontainers.image.base.name="alpine" \
       org.opencontainers.image.base.digest="${ALPINE_IMAGE_DIGEST}"
 
-# Install supercronic binary compiled with Go 1.26.2 (patches CVE-2026-32280,
-# CVE-2026-32282, CVE-2026-33810 via Go stdlib upgrade).
-COPY --from=supercronic-builder --chmod=755 /go/bin/supercronic /usr/local/bin/
-
-# Install runtime dependencies.
+# Install runtime dependencies and supercronic.
 # DL3018: version constraints use '>' (minimum) rather than '=' (exact) by
 # design — apk does not have a lock-file mechanism and exact pins would break
 # on every Alpine point release.
@@ -87,7 +70,20 @@ RUN set -eux; \
         'aws-cli>2.20' \
         'bash>5.2' \
         'coreutils>9' \
-        'jq>1' \
+        'gojq' \
+        'py3-pip>23.0' \
+    && ln -sf /usr/bin/gojq /usr/local/bin/jq \
+    && SUPERCRONIC_ARCH="$(uname -m \
+            | sed 's/x86_64/amd64/;s/aarch64/arm64/')" \
+    && wget -qO /usr/local/bin/supercronic \
+            "https://github.com/aptible/supercronic/releases/download/${SUPERCRONIC_VERSION}/supercronic-linux-${SUPERCRONIC_ARCH}" \
+    && chmod 0755 /usr/local/bin/supercronic \
+    && pip3 install --no-cache-dir --break-system-packages \
+        'cryptography>=46.0.5' \
+        'pip>=25.3' \
+        'urllib3>=2.6.3' \
+        'wheel>=0.46.2' \
+        'zipp>=3.19.1' \
     && install -d -m 755 /usr/local/include \
     && echo "[INFO] completed installing aws-backup-base"
 
