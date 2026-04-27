@@ -110,9 +110,9 @@ set -euo pipefail
 
 # -- GENERATED metadata (informational; enforcement is in CI) --
 # shellcheck disable=SC2034
-GENERATED_AT="2026-04-21T00:56:20Z"
+GENERATED_AT="2026-04-27T14:35:12Z"
 # shellcheck disable=SC2034
-GENERATED_FROM_SHA="6247022"
+GENERATED_FROM_SHA="a7999ba"
 
 # ---------------------------------------------------------------------------
 # Defaults — may be overridden by environment variables or CLI flags.
@@ -454,10 +454,14 @@ fi
 
 # ---------------------------------------------------------------------------
 # Construct the tag list.
+# Dev builds are tagged as both dev-<commit> and dev-latest.
 # "latest" is only added for non-dev (release) builds that will be pushed.
 # ---------------------------------------------------------------------------
 full_image="${REGISTRY}/${IMAGE_NAME}"
 tags=("--tag" "${full_image}:${VERSION}")
+if [[ "${VERSION}" == dev-* ]]; then
+    tags+=("--tag" "${full_image}:dev-latest")
+fi
 if [[ "${PUSH}" == "true" && "${VERSION}" != dev-* ]]; then
     tags+=("--tag" "${full_image}:latest")
 fi
@@ -784,9 +788,11 @@ fi
 if [[ "${PUSH}" == "true" ]]; then
     echo "==> Stage 6: Push ${full_image}:${VERSION} (${PLATFORMS})" >&2
 
-    # For push, only include :latest on non-dev releases.
+    # For push, include :latest on releases and :dev-latest on dev builds.
     push_tags=("--tag" "${full_image}:${VERSION}")
-    if [[ "${VERSION}" != dev-* ]]; then
+    if [[ "${VERSION}" == dev-* ]]; then
+        push_tags+=("--tag" "${full_image}:dev-latest")
+    else
         push_tags+=("--tag" "${full_image}:latest")
     fi
 
