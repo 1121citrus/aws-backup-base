@@ -1,16 +1,16 @@
 # aws-backup-base
 
-Shared Alpine + AWS CLI + supercronic base image for 1121 Citrus Avenue backup
-services.
+Shared Amazon Linux 2023 + AWS CLI + supercronic base image for 1121 Citrus
+Avenue backup services.
 
 ## Purpose
 
 Provides a common foundation for cron-based AWS backup services:
 
-- Alpine 3.22
-- AWS CLI >= 2.20
-- supercronic v0.2.44 (compiled from source with Go 1.26.2 for CVE patches)
-- bash >= 5.2, coreutils, jq
+- Amazon Linux 2023 (digest-pinned)
+- AWS CLI 2 (`awscli-2` from AL2023 dnf)
+- supercronic v0.2.45 (pre-built binary from aptible/supercronic releases)
+- `findutils`, `gnupg2`, `hostname`, `jq`, `procps-ng`, `shadow-utils`, `tar`
 - `/usr/local/include/common-functions` — shared bash utilities
 - `/usr/local/bin/healthcheck-base` — configurable generic healthcheck
 - `/usr/local/bin/startup-base` — generic startup shim
@@ -20,18 +20,17 @@ Provides a common foundation for cron-based AWS backup services:
 Child images build on this base:
 
 ```dockerfile
-FROM 1121citrus/aws-backup-base:0.1.0
+FROM 1121citrus/aws-backup-base:1.1.0
 
-# Install application-specific packages
-RUN apk add --no-cache ...
+# Install application-specific packages (AL2023 uses dnf, not apk)
+RUN dnf install -y --quiet --allowerasing <package> && dnf clean all
 
 # Copy application scripts
 COPY --chmod=755 ./src/my-backup /usr/local/bin/
 
 # Create non-privileged user
 ARG UID=10001
-RUN adduser --disabled-password --gecos "" --shell "/sbin/nologin" \
-        --uid "${UID}" my-backup \
+RUN useradd --no-create-home --shell /sbin/nologin --uid "${UID}" my-backup \
     && install -d -m 0755 -o my-backup /var/spool/cron/crontabs
 
 USER my-backup

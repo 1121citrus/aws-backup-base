@@ -13,28 +13,24 @@ or email the maintainer directly. Please include:
 
 ### Base image
 
-The final image is built on Alpine Linux, chosen for its minimal package
-set and small attack surface. The base image digest is pinned in the
-`Dockerfile` (`ALPINE_IMAGE_DIGEST`) so builds are reproducible and
-immune to tag mutation. Alpine is upgraded unconditionally at build time
-(`apk upgrade`) to pick up any patches released since the pinned digest.
+The final image is built on Amazon Linux 2023 (AL2023). The base image
+digest is pinned in the `Dockerfile` (`AL2023_IMAGE_DIGEST`) so builds
+are reproducible and immune to tag mutation. The OS is upgraded
+unconditionally at build time (`dnf upgrade`) to pick up any patches
+released since the pinned digest.
 
 ### Supercronic
 
-supercronic is compiled from source rather than downloaded as a binary.
-This allows the Go toolchain version to be controlled independently of
-the upstream release cadence. The current build uses Go 1.26.2, which
-patches:
+supercronic is downloaded as a pre-built binary from the official
+[aptible/supercronic](https://github.com/aptible/supercronic) GitHub
+releases. The version is pinned via `SUPERCRONIC_VERSION` build-arg.
+The current version (v0.2.45) was compiled with Go 1.26.2, which patches:
 
 | CVE | Severity | Component |
 | --- | -------- | --------- |
 | CVE-2026-32280 | HIGH | `crypto/x509` — denial of service |
 | CVE-2026-32282 | MEDIUM | `os.Root` — symlink traversal |
 | CVE-2026-33810 | HIGH | `crypto/x509` — certificate validation bypass |
-
-Once an upstream supercronic release ships with Go >= 1.26.2 (or
->= 1.25.9), the build stage can be removed and replaced with the simpler
-pre-built binary installation.
 
 ### No secrets in the image
 
