@@ -120,6 +120,7 @@ GENERATED_FROM_SHA="a7999ba"
 SCAN=${BUILD_SCAN:-true}
 SCAN_GRYPE=${BUILD_SCAN_GRYPE:-true}
 SCAN_SCOUT=${BUILD_SCAN_SCOUT:-true}
+ADVISE_COVERAGE=false
 ADVISE_DIVE=false
 _ADVISE_EXPLICIT=false   # set true when --advise or --no-advise is passed
 CACHE_RESET_TRIVY=false
@@ -150,6 +151,8 @@ HADOLINT_IMAGE=hadolint/hadolint
 HADOLINT_TAG=v2.12.0
 MARKDOWNLINT_IMAGE=ghcr.io/igorshubovych/markdownlint-cli
 MARKDOWNLINT_TAG=v0.48.0
+BATS_KCOV_IMAGE=1121citrus/bats-kcov
+BATS_KCOV_TAG=latest
 SHELLCHECK_IMAGE=koalaman/shellcheck
 SHELLCHECK_TAG=v0.10.0
 TRIVY_IMAGE=aquasec/trivy
@@ -395,17 +398,21 @@ while [[ $# -gt 0 ]]; do
                 advisements="all"
             fi
             # Parse the comma-delimited list
+            ADVISE_COVERAGE=false
             ADVISE_DIVE=false
             IFS=',' read -ra adv_list <<< "$advisements"
             for adv in "${adv_list[@]}"; do
                 adv="${adv//[[:space:]]/}"
                 adv="${adv,,}"
                 case "$adv" in
+                    coverage) ADVISE_COVERAGE=true ;;
                     dive)     ADVISE_DIVE=true ;;
                     all)
+                        ADVISE_COVERAGE=true
                         ADVISE_DIVE=true
                         ;;
                     none)
+                        ADVISE_COVERAGE=false
                         ADVISE_DIVE=false
                         ;;
                     *)  echo "Unknown advisement: $adv" >&2; exit 1 ;;
@@ -413,6 +420,7 @@ while [[ $# -gt 0 ]]; do
             done
             ;;
         --no-advise)
+            ADVISE_COVERAGE=false
             ADVISE_DIVE=false
             _ADVISE_EXPLICIT=true
             ;;
@@ -440,6 +448,7 @@ done
 
 # --no-scan implies --no-advise unless --advise was given explicitly.
 if [[ "${SCAN}" == "false" && "${_ADVISE_EXPLICIT}" == "false" ]]; then
+    ADVISE_COVERAGE=false
     ADVISE_DIVE=false
 fi
 
@@ -778,6 +787,32 @@ if [[ "${ADVISE_DIVE}" == "true" ]]; then
                 --ci \
                 --ci-config /.dive-ci \
                 "${full_image}:${VERSION}" || true
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# Stage 5d: Coverage (kcov — advisory, never blocks)
+#
+# Reruns the bats suite through kcov to produce a per-file line-coverage
+# report for src/.  Uses 1121citrus/bats-kcov (kcov + bats + jq pre-bundled).
+# Requires SYS_PTRACE; works on macOS Docker Desktop with the flags below.
+# ---------------------------------------------------------------------------
+if [[ "${ADVISE_COVERAGE}" == "true" ]]; then
+    echo "==> Stage 5d: Coverage" >&2
+
+    if [[ "${DRY_RUN}" == "true" ]]; then
+        echo "[DRY RUN] docker run --rm --cap-add SYS_PTRACE --security-opt seccomp=unconfined \\" >&2
+        echo "[DRY RUN]   -v ${script_dir}:/code:ro -w /code ${BATS_KCOV_IMAGE}:${BATS_KCOV_TAG} bats-coverage <test files>" >&2
+    else
+        docker run --rm \
+            --cap-add SYS_PTRACE \
+            --security-opt seccomp=unconfined \
+            -v "${script_dir}:/code:ro" \
+            -w /code \
+            "${BATS_KCOV_IMAGE}:${BATS_KCOV_TAG}" \
+            bats-coverage \
+                test/06-source-coverage.bats \
+            >&2 || echo "    Coverage run failed (advisory only)" >&2
     fi
 fi
 
