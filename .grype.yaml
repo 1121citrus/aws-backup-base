@@ -1,0 +1,78 @@
+# Grype CVE ignore rules for aws-backup-base
+#
+# All entries below are false positives caused by a mismatch between the
+# upstream PyPI version number and Amazon's RPM patch level.  AL2023 ships
+# backported security fixes inside the *same* upstream version string; grype
+# reads the dist-info METADATA file (which still shows the old upstream
+# version) and flags the packages as unpatched.
+#
+# Grype reports these by GHSA ID; the corresponding CVE is noted in each
+# comment.  Each entry cites the Amazon Linux Security Advisory (ALAS) that
+# confirms the currently installed RPM already carries the fix.
+#
+# Installed versions that carry all fixes below:
+#   python3-urllib3-1.25.10-5.amzn2023.0.6
+#   python3-setuptools-59.6.0-2.amzn2023.0.6
+#
+# To re-evaluate: run `dnf check-update python3-urllib3 python3-setuptools`
+# inside the image.  If newer RPMs become available the entries below should
+# be reassessed and removed as appropriate.
+
+ignore:
+
+  # ── urllib3 ──────────────────────────────────────────────────────────────
+  # CVE-2026-21441, CVE-2025-66471, CVE-2025-66418
+  # Fixed in python3-urllib3-1.25.10-5.amzn2023.0.6 (ALAS2023-2026-1418,
+  # released 2026-02-05).
+  - vulnerability: GHSA-38jv-5279-wg99
+    package:
+      name: urllib3
+      type: python
+  - vulnerability: GHSA-gm62-xv2j-4w53
+    package:
+      name: urllib3
+      type: python
+  - vulnerability: GHSA-2xpw-w6gg-jr37
+    package:
+      name: urllib3
+      type: python
+
+  # CVE-2023-43804
+  # Fixed in python3-urllib3-1.25.10-5.amzn2023.0.6 (ALAS2023-2023-454,
+  # released 2023-12-14).
+  - vulnerability: GHSA-v845-jxx5-vc9f
+    package:
+      name: urllib3
+      type: python
+
+  # CVE-2021-33503
+  # AL2023 confirmed "Not Affected" per alas.aws.amazon.com.
+  - vulnerability: GHSA-q2q7-5pp4-w6pg
+    package:
+      name: urllib3
+      type: python
+
+  # ── setuptools ───────────────────────────────────────────────────────────
+  # CVE-2025-47273
+  # Fixed in python3-setuptools-59.6.0-2.amzn2023.0.6 (ALAS2023-2025-1005,
+  # released 2025-06-10).
+  - vulnerability: GHSA-5rjg-fvgr-3xxf
+    package:
+      name: setuptools
+      type: python
+
+  # CVE-2024-6345
+  # Fixed in python3-setuptools-59.6.0-2.amzn2023.0.6 (ALAS2023-2024-676,
+  # released 2024-08-15).
+  - vulnerability: GHSA-cx63-2mw6-8hw5
+    package:
+      name: setuptools
+      type: python
+
+  # CVE-2022-40897
+  # Fixed in python3-setuptools-59.6.0-2.amzn2023.0.6 (ALAS2023-2023-245,
+  # released 2023-07-19).
+  - vulnerability: GHSA-r9hx-vwmv-q579
+    package:
+      name: setuptools
+      type: python

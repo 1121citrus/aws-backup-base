@@ -51,6 +51,27 @@ Every build is scanned with three tools:
 Scans are also run on a weekly schedule via GitHub Actions to catch
 newly published CVEs between releases.
 
+### Grype false-positive suppression
+
+AL2023 ships backported security fixes inside the *same* upstream version
+string as the unpatched release. Grype reads the dist-info `METADATA` file
+(which still reports the old upstream version) and flags the package as
+vulnerable even though the installed RPM already carries the fix.
+
+Confirmed false positives are recorded in `.grype.yaml` with:
+
+- the GHSA identifier grype uses to match the finding
+- the Amazon Linux Security Advisory (ALAS) that confirms the fix is present
+
+To audit the suppressions, check whether a newer RPM is available:
+
+```
+dnf check-update python3-urllib3 python3-setuptools
+```
+
+If a newer RPM is released, reassess the corresponding entry and remove it
+from `.grype.yaml` when the dist-info version string is updated.
+
 ### Filesystem permissions
 
 Scripts are installed with the minimum required permissions:

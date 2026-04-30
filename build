@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
+# 1121citrus.build-date 2026-04-30T21:02:03Z
+# 1121citrus.build-version c659c4d262ae
 
 # build — local CI equivalent for aws-backup-base.
 #
