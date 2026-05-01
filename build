@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
-# 1121citrus.build-date 2026-04-30T21:02:03Z
-# 1121citrus.build-version c659c4d262ae
+# 1121citrus.build-date 2026-05-01T00:52:40Z
+# 1121citrus.build-version 6bbe275c0778
 
 # build — local CI equivalent for aws-backup-base.
 #
@@ -662,8 +662,11 @@ fi
 # ---------------------------------------------------------------------------
 if [[ "${TEST}" == "true" ]]; then
     echo "==> Stage 3: Test" >&2
-    if [[ -x "${script_dir}/test/run-all" ]]; then
+    if [[ "${DRY_RUN}" == "true" ]]; then
+        echo "[DRY RUN] ./test/run-all" >&2
+    elif [[ -x "${script_dir}/test/run-all" ]]; then
         (cd "${script_dir}" && env IMAGE="${full_image}:${VERSION}" TEST_SUMMARY_JSON="${TEST_SUMMARY_JSON}" ./test/run-all)
+        write_build_report
     else
     docker run -i --rm \
         -v "${script_dir}:${script_dir}" \
@@ -677,8 +680,8 @@ if [[ "${TEST}" == "true" ]]; then
             && bats \
                 test/01-build.bats \
                 test/02-image-contents.bats"
+        write_build_report
     fi
-    write_build_report
 fi
 
 # ---------------------------------------------------------------------------
