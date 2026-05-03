@@ -15,3 +15,6 @@ CVE-2026-4786
 # cpython: arbitrary code execution/info disclosure via use-after-free in
 # decompression — fix: python3 3.9.25-1.amzn2023.0.5
 CVE-2026-6100
+
+# pip-wheel: LOW — fix: python3-pip-wheel 21.3.1-2.amzn2023.0.17 (not yet in repo)
+CVE-2026-1703
