@@ -20,7 +20,7 @@ Provides a common foundation for cron-based AWS backup services:
 Child images build on this base:
 
 ```dockerfile
-FROM 1121citrus/aws-backup-base:1.1.0
+FROM 1121citrus/aws-backup-base:1.1.2
 
 # Install application-specific packages (AL2023 uses dnf, not apk)
 RUN dnf install -y --quiet --allowerasing <package> && dnf clean all

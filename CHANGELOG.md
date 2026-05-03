@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-05-03
+
+### Changed
+
+- Bump project version to 1.1.2
+
+## [1.1.1] - 2026-04-30
+
+### Changed
+
+- Add kcov-based coverage infrastructure to the repository
+- Regenerate the `build` script to add test/staging integration and improve
+  validation and staging help text
+- Regenerate the `build` script to include grype false-positive suppression
+  and descriptor/provenance SHA synchronization updates
+- Update `README.md` and `SECURITY.md` for Amazon Linux 2023 migration
+- Add leading docstrings to generated build functions
+
 ## [1.1.0] - 2026-04-27
 
 ### Changed
@@ -52,7 +70,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/1121citrus/aws-backup-base/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/1121citrus/aws-backup-base/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/1121citrus/aws-backup-base/releases/tag/v1.0.0
