@@ -96,7 +96,8 @@ jobs:
           exit-code: "1"
           ignore-unfixed: true
           severity: CRITICAL,HIGH
-          trivyignores: .trivyignore
+        env:
+          TRIVY_IGNOREFILE: ${{ github.workspace }}/.trivyignore
 
       - name: Upload scan results
         if: always()
