@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Build `supercronic` from source in a dedicated builder stage using a
+  pinned Go toolchain image (`golang:1.26.3-alpine`) instead of downloading
+  pre-built release binaries
+- Refresh the pinned AL2023 base digest to
+  `sha256:f03d3254192161691b72be58219022adc2036bd0933aa2b6f3b744f20b2bbe8c`
+
+### Security
+
+- Update `SECURITY.md` to document source-built supercronic and the current
+  Go stdlib HIGH CVE remediation coverage
+
 ## [1.1.2] - 2026-05-03
 
 ### Changed

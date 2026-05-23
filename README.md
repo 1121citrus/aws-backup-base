@@ -9,7 +9,7 @@ Provides a common foundation for cron-based AWS backup services:
 
 - Amazon Linux 2023 (digest-pinned)
 - AWS CLI 2 (`awscli-2` from AL2023 dnf)
-- supercronic v0.2.45 (pre-built binary from aptible/supercronic releases)
+- supercronic v0.2.45 (compiled from source with pinned Go toolchain)
 - `findutils`, `gnupg2`, `hostname`, `jq`, `procps-ng`, `shadow-utils`, `tar`
 - `/usr/local/include/common-functions` — shared bash utilities
 - `/usr/local/bin/healthcheck-base` — configurable generic healthcheck

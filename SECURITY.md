@@ -21,16 +21,21 @@ released since the pinned digest.
 
 ### Supercronic
 
-supercronic is downloaded as a pre-built binary from the official
-[aptible/supercronic](https://github.com/aptible/supercronic) GitHub
-releases. The version is pinned via `SUPERCRONIC_VERSION` build-arg.
-The current version (v0.2.45) was compiled with Go 1.26.2, which patches:
+supercronic is compiled from source in a dedicated Docker build stage.
+The version is pinned via `SUPERCRONIC_VERSION` and the Go toolchain is
+pinned via `SUPERCRONIC_BUILDER_IMAGE`.
+
+This avoids waiting for upstream binary releases when Go stdlib CVE fixes
+land in Go first. The current builder pin (`golang:1.26.3-alpine`) includes
+the Go fixes for:
 
 | CVE | Severity | Component |
 | --- | -------- | --------- |
-| CVE-2026-32280 | HIGH | `crypto/x509` — denial of service |
-| CVE-2026-32282 | MEDIUM | `os.Root` — symlink traversal |
-| CVE-2026-33810 | HIGH | `crypto/x509` — certificate validation bypass |
+| CVE-2026-33811 | HIGH | `net` resolver memory issue via cgo DNS |
+| CVE-2026-33814 | HIGH | `net/http` HTTP/2 SETTINGS frame handling |
+| CVE-2026-39820 | HIGH | `net/mail` address parsing denial of service |
+| CVE-2026-39836 | HIGH | `net` panic on NUL-byte input to dial/lookup |
+| CVE-2026-42499 | HIGH | `mime` phrase parsing denial of service |
 
 ### No secrets in the image
 
