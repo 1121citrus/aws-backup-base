@@ -680,7 +680,7 @@ fi
 if [[ "${TEST}" == "true" ]]; then
     echo "==> Stage 3: Test" >&2
     if [[ -x "${script_dir}/test/run-all" ]]; then
-        (cd "${script_dir}" && env IMAGE="${full_image}:${VERSION}" TEST_SUMMARY_JSON="${TEST_SUMMARY_JSON}" run ./test/run-all)
+        (cd "${script_dir}" && IMAGE="${full_image}:${VERSION}" TEST_SUMMARY_JSON="${TEST_SUMMARY_JSON}" ./test/run-all)
     else
     run docker run -i --rm \
         -v "${script_dir}:${script_dir}" \
@@ -899,7 +899,10 @@ if [[ "${ADVISE_COVERAGE}" == "true" ]]; then
         docker run --rm \
             --cap-add SYS_PTRACE \
             --security-opt seccomp=unconfined \
-            -v "${script_dir}:/code:ro" \
+            -v "${script_dir}:/code" \
+            -v /tmp:/tmp \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -e "IMAGE=${full_image}:${VERSION}" \
             -w /code \
             "${BATS_KCOV_IMAGE}:${BATS_KCOV_TAG}" \
             bats-coverage \
@@ -923,7 +926,7 @@ if [[ "${ADVISE_METRICS}" == "true" ]]; then
     docker run --rm \
         -v "${script_dir}:/data:ro" \
         "${SCC_IMAGE}:${SCC_TAG}" \
-        --by-file /data >&2 || true
+        scc --by-file /data >&2 || true
 fi
 
 # ---------------------------------------------------------------------------

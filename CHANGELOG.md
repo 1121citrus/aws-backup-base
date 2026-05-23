@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   pre-built release binaries
 - Refresh the pinned AL2023 base digest to
   `sha256:f03d3254192161691b72be58219022adc2036bd0933aa2b6f3b744f20b2bbe8c`
+- Fix Stage 3 test invocation in `build` to execute `test/run-all` directly
+  with environment variables (removes invalid `env ... run` call)
+- Fix Stage 5f metrics advisement invocation to run `scc --by-file /data`
+  inside the container (removes host-side `--by-file` exec error)
 
 ### Security
 
