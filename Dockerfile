@@ -23,8 +23,17 @@
 ARG AL2023_IMAGE_DIGEST=sha256:ceeab7e010ed03ea155cfbbfd7140672eba5a49e1110b8b4ed35342312c3f21a
 # renovate: datasource=github-releases depName=aptible/supercronic
 ARG SUPERCRONIC_VERSION=v0.2.45
+# renovate: datasource=docker depName=golang
+ARG SUPERCRONIC_BUILDER_IMAGE=golang:1.26.3-alpine
 
 ARG VERSION=dev
+
+# hadolint ignore=DL3006
+FROM ${SUPERCRONIC_BUILDER_IMAGE} AS supercronic-builder
+
+ARG SUPERCRONIC_VERSION
+
+RUN CGO_ENABLED=0 go install github.com/aptible/supercronic@${SUPERCRONIC_VERSION}
 
 # hadolint ignore=DL3006
 FROM amazonlinux:2023@${AL2023_IMAGE_DIGEST}
@@ -61,6 +70,8 @@ LABEL org.opencontainers.image.title="aws-backup-base" \
       org.opencontainers.image.base.name="amazonlinux:2023" \
       org.opencontainers.image.base.digest="${AL2023_IMAGE_DIGEST}"
 
+COPY --from=supercronic-builder --chmod=755 /go/bin/supercronic /usr/local/bin/supercronic
+
 # Install runtime dependencies and supercronic.
 # DL3041: version constraints omitted — AL2023 repo pins are stable and exact
 # versions would break on every AL2023 point release.
@@ -76,12 +87,6 @@ RUN set -eux; \
         procps-ng \
         shadow-utils \
         tar \
-    && SUPERCRONIC_ARCH="$(uname -m \
-            | sed 's/x86_64/amd64/;s/aarch64/arm64/')" \
-    && curl -fsSL \
-            "https://github.com/aptible/supercronic/releases/download/${SUPERCRONIC_VERSION}/supercronic-linux-${SUPERCRONIC_ARCH}" \
-            -o /usr/local/bin/supercronic \
-    && chmod 0755 /usr/local/bin/supercronic \
     && install -d -m 755 /usr/local/include \
     && dnf clean all \
     && rm -rf /var/cache/dnf \
