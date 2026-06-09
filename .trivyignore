@@ -4,6 +4,10 @@
 # glibc: DoS via iconv() — fix: 2.34-231.amzn2023.0.4 (not yet in repo)
 CVE-2026-4046
 
+# gnutls: DTLS zero-length fragment DoS — fix: 3.8.3-8.amzn2023.0.4
+# (not yet in repo)
+CVE-2026-33845
+
 # cpython: incomplete control-char validation in http.cookies
 # fix: python3 3.9.25-1.amzn2023.0.5
 CVE-2026-3644
