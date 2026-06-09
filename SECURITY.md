@@ -75,7 +75,7 @@ Current temporary Trivy suppressions include:
 - `CVE-2026-4786` (`python3`, pending `3.9.25-1.amzn2023.0.5`)
 - `CVE-2026-6100` (`python3`, pending `3.9.25-1.amzn2023.0.5`)
 - `CVE-2026-1703` (`python3-pip-wheel`, pending
-	`21.3.1-2.amzn2023.0.17`)
+  `21.3.1-2.amzn2023.0.17`)
 
 Remove each suppression as soon as the corresponding fixed RPM is
 available in AL2023 and adopted by the image build.
