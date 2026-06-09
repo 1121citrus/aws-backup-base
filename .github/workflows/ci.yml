@@ -92,6 +92,7 @@ jobs:
         with:
           image-ref: ${{ env.IMAGE }}:ci-scan
           format: sarif
+          limit-severities-for-sarif: true
           output: trivy-results.sarif
           exit-code: "1"
           ignore-unfixed: true
