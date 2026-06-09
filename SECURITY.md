@@ -67,6 +67,10 @@ Current temporary Trivy suppressions include:
 
 - `CVE-2026-4046` (`glibc`, pending `2.34-231.amzn2023.0.4`)
 - `CVE-2026-33845` (`gnutls`, pending `3.8.3-8.amzn2023.0.4`)
+- `CVE-2026-48863` (`libsolv`, pending `0.7.22-1.amzn2023.0.4`)
+- `CVE-2026-48864` (`libsolv`, pending `0.7.22-1.amzn2023.0.4`)
+- `CVE-2026-9149` (`libsolv`, pending `0.7.22-1.amzn2023.0.4`)
+- `CVE-2026-9150` (`libsolv`, pending `0.7.22-1.amzn2023.0.4`)
 - `CVE-2026-3644` (`python3`, pending `3.9.25-1.amzn2023.0.5`)
 - `CVE-2026-4786` (`python3`, pending `3.9.25-1.amzn2023.0.5`)
 - `CVE-2026-6100` (`python3`, pending `3.9.25-1.amzn2023.0.5`)
