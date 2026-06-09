@@ -57,6 +57,25 @@ Every build is scanned with three tools:
 Scans are also run on a weekly schedule via GitHub Actions to catch
 newly published CVEs between releases.
 
+### Trivy suppression policy
+
+When a fix is published upstream but the patched RPM is not yet available
+in the AL2023 repositories, the CVE is temporarily recorded in
+`.trivyignore` with the expected fixed package version.
+
+Current temporary Trivy suppressions include:
+
+- `CVE-2026-4046` (`glibc`, pending `2.34-231.amzn2023.0.4`)
+- `CVE-2026-33845` (`gnutls`, pending `3.8.3-8.amzn2023.0.4`)
+- `CVE-2026-3644` (`python3`, pending `3.9.25-1.amzn2023.0.5`)
+- `CVE-2026-4786` (`python3`, pending `3.9.25-1.amzn2023.0.5`)
+- `CVE-2026-6100` (`python3`, pending `3.9.25-1.amzn2023.0.5`)
+- `CVE-2026-1703` (`python3-pip-wheel`, pending
+	`21.3.1-2.amzn2023.0.17`)
+
+Remove each suppression as soon as the corresponding fixed RPM is
+available in AL2023 and adopted by the image build.
+
 ### Grype false-positive suppression
 
 AL2023 ships backported security fixes inside the *same* upstream version
