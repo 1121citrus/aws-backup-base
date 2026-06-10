@@ -109,16 +109,14 @@ jobs:
           retention-days: 30
 
   # ── Stage 3: Push to Docker Hub ───────────────────────────────────────────
-  # Runs only when a v* tag or the staging branch is pushed and all checks
-  # pass.  The shared workflow builds a multi-platform image and pushes it
-  # with SBOM and provenance attestations.
+  # Runs only when a v* tag is pushed and all checks pass.  The shared
+  # workflow builds a multi-platform image and pushes it with SBOM and
+  # provenance attestations.
   push:
     needs: [lint-and-test, scan]
     if: >
-      github.event_name == 'push' && (
-        startsWith(github.ref, 'refs/tags/v') ||
-        github.ref == 'refs/heads/staging'
-      )
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/tags/v')
     uses: 1121citrus/shared-github-workflows/.github/workflows/push.yml@v1
     with:
       image: 1121citrus/aws-backup-base
