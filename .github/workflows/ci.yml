@@ -6,118 +6,31 @@ on:
     tags: ["v*"]
   pull_request:
     branches: [main]
-  schedule:
-    - cron: "0 6 * * 1"  # weekly Monday 06:00 UTC (scan job only)
-  workflow_dispatch:
 
-# Cancel in-progress runs for branch/PR refs; let tag builds always complete.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
 permissions:
   contents: read
 
-env:
-  IMAGE: 1121citrus/aws-backup-base
-
 jobs:
-  # ── Stage 1: Lint, build, test, smoke ─────────────────────────────────────
-  lint-and-test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Lint, build, test, and smoke
-        run: ./build --no-scan --no-advise
-
-  # ── Stage 2: CVE scan ─────────────────────────────────────────────────────
-  # Runs on push to main/staging, tag pushes, weekly schedule, and manual
-  # trigger.  Uses actions/cache rather than Docker volumes because GitHub
-  # runners are ephemeral and named volumes do not persist between jobs.
-  scan:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    if: >
-      github.event_name == 'schedule' ||
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'push' && (
-        github.ref == 'refs/heads/main' ||
-        github.ref == 'refs/heads/staging' ||
-        startsWith(github.ref, 'refs/tags/v')
-      ))
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build image for scanning
-        run: >
-          ./build
-          --no-lint --no-test --no-smoke --no-scan --no-advise
-          --version ci-scan
-
-      - name: Get weekly cache stamp
-        id: week
-        run: echo "stamp=$(date +%Y-W%V)" >> "${GITHUB_OUTPUT}"
-
-      - name: Check system time
-        run: |
-          date -u
-          timedatectl status || true
-
-      - name: Cache Trivy DB
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/trivy
-          key: trivy-${{ runner.os }}-${{ steps.week.outputs.stamp }}
-
-      - name: Scan with Trivy (CRITICAL and HIGH)
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
-        with:
-          image-ref: ${{ env.IMAGE }}:ci-scan
-          format: sarif
-          limit-severities-for-sarif: true
-          output: trivy-results.sarif
-          exit-code: "1"
-          ignore-unfixed: true
-          severity: CRITICAL,HIGH
-        env:
-          TRIVY_IGNOREFILE: ${{ github.workspace }}/.trivyignore
-
-      - name: Upload scan results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-scan-results-${{ github.run_id }}
-          path: trivy-results.sarif
-          retention-days: 30
-
-  # ── Stage 3: Push to Docker Hub ───────────────────────────────────────────
-  # Runs only when a v* tag is pushed and all checks pass.  The shared
-  # workflow builds a multi-platform image and pushes it with SBOM and
-  # provenance attestations.
-  push:
-    needs: [lint-and-test, scan]
-    if: >
-      github.event_name == 'push' &&
-      startsWith(github.ref, 'refs/tags/v')
-    uses: 1121citrus/shared-github-workflows/.github/workflows/push.yml@v1
+  ci:
+    uses: 1121citrus/shared-github-workflows/.github/workflows/pipeline.yml@v1
     with:
       image: 1121citrus/aws-backup-base
+      inject-metadata: true
+      test-mode: bats-docker-cli
+      test-bats-files: |
+        test/01-build.bats
+        test/02-image-contents.bats
+      smoke-enabled: true
+      smoke-commands: |
+        docker run --rm "${full_image}:${VERSION}" aws --version
+        docker run --rm "${full_image}:${VERSION}" supercronic --version
+        docker run --rm "${full_image}:${VERSION}" bash -c 'bash --version | head -1'
+        docker run --rm "${full_image}:${VERSION}" test -x /usr/local/bin/healthcheck-base
+        docker run --rm "${full_image}:${VERSION}" test -x /usr/local/bin/startup-base
+        docker run --rm "${full_image}:${VERSION}" test -r /usr/local/include/common-functions
+      trivyignore: .trivyignore
     secrets: inherit
