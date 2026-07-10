@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.8] - 2026-07-10
+
 ### Added
 
 - `touch_healthcheck_startup_marker` in `common-functions`: derivative
@@ -16,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   setting `HEALTHCHECK_STARTUP_FILE` only enabled the check without
   creating the file it depends on -- documented in README.md with the
   required call site.
+
+### Security
+
+- Refreshed the pinned `amazonlinux:2023` digest (2026-06-08 →
+  2026-07-08). The prior pin carried 65+ unfixed HIGH CVEs across the
+  AL2023 package set that the newer base's own `dnf upgrade` already
+  resolves; a Trivy scan against the refreshed base reports 0
+  vulnerabilities.
 
 ## [1.1.7] - 2026-06-09
 
@@ -123,7 +133,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.7...HEAD
+[Unreleased]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.8...HEAD
+[1.1.8]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.7...v1.1.8
 [1.1.7]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.6...v1.1.7
 [1.1.6]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.5...v1.1.6
 [1.1.5]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.4...v1.1.5
