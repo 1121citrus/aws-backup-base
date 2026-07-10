@@ -61,6 +61,27 @@ CMD ["/usr/local/bin/my-backup", "--cron"]
 - `HEALTHCHECK_STARTUP_FILE` — startup marker file (skipped if unset)
 - `HEALTHCHECK_CRONTAB_FILE` — defaults to `/var/spool/cron/crontabs/<user>`
 
+Setting `HEALTHCHECK_STARTUP_FILE` only *enables* the grace-period check —
+it does not create the marker. The derivative image's own scheduler-mode
+entry point (its `--cron` handler) must call
+`touch_healthcheck_startup_marker` (from `common-functions`, sourced
+already) once at startup, before installing the crontab:
+
+```bash
+source /usr/local/include/common-functions
+
+function run_scheduler() {
+    # ... write env file, install crontab ...
+    touch_healthcheck_startup_marker
+    exec supercronic "${crontab_file}"
+}
+```
+
+Without this call, `HEALTHCHECK_STARTUP_FILE` is set but the file never
+exists, so the grace-period branch in `has_cronjob_run()` is dead code:
+every fresh deployment reports unhealthy until the first scheduled
+backup completes, which can be a full cron period away.
+
 ## `startup-base` environment variables
 
 | Variable         | Required | Description                                    |

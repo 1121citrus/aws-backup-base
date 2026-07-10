@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `touch_healthcheck_startup_marker` in `common-functions`: derivative
+  images call this once from their scheduler-mode entry point to
+  populate `HEALTHCHECK_STARTUP_FILE`, so `healthcheck-base`'s
+  grace-period check actually has a marker to read. Previously,
+  setting `HEALTHCHECK_STARTUP_FILE` only enabled the check without
+  creating the file it depends on -- documented in README.md with the
+  required call site.
+
 ## [1.1.7] - 2026-06-09
 
 ### Changed

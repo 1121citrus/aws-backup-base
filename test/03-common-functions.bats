@@ -114,3 +114,25 @@ setup() {
     run bash -c "source '${COMMON_FUNCTIONS}'; path-remove ''"
     [ "$status" -eq 1 ]
 }
+
+# ---------------------------------------------------------------------------
+# touch_healthcheck_startup_marker
+# ---------------------------------------------------------------------------
+
+@test "touch_healthcheck_startup_marker: creates the file when HEALTHCHECK_STARTUP_FILE is set" {
+    local marker="${BATS_TEST_TMPDIR}/startup-marker"
+    HEALTHCHECK_STARTUP_FILE="${marker}" touch_healthcheck_startup_marker
+    [ -f "${marker}" ]
+}
+
+@test "touch_healthcheck_startup_marker: returns 0 when HEALTHCHECK_STARTUP_FILE is unset" {
+    unset HEALTHCHECK_STARTUP_FILE
+    run touch_healthcheck_startup_marker
+    [ "$status" -eq 0 ]
+}
+
+@test "touch_healthcheck_startup_marker: does not create a file when HEALTHCHECK_STARTUP_FILE is unset" {
+    unset HEALTHCHECK_STARTUP_FILE
+    touch_healthcheck_startup_marker
+    [[ ! -f "${BATS_TEST_TMPDIR}/startup-marker" ]]
+}
