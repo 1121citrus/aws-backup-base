@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.9] - 2026-07-10
+
+### Changed
+
+- Refresh the supercronic builder toolchain from Go 1.26.4 to Go 1.26.5
+- Update the pinned `supercronic` release from v0.2.45 to v0.2.47 so the
+  binary carries the current Go stdlib fixes
+
 ## [1.1.8] - 2026-07-10
 
 ### Added

@@ -26,7 +26,7 @@ The version is pinned via `SUPERCRONIC_VERSION` and the Go toolchain is
 pinned via `SUPERCRONIC_BUILDER_IMAGE`.
 
 This avoids waiting for upstream binary releases when Go stdlib CVE fixes
-land in Go first. The current builder pin (`golang:1.26.4-alpine`) includes
+land in Go first. The current builder pin (`golang:1.26.5-alpine`) includes
 the Go fixes for:
 
 | CVE | Severity | Component |

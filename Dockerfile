@@ -22,9 +22,9 @@
 # Amazon Linux 2023 (updated 2026-07-08)
 ARG AL2023_IMAGE_DIGEST=sha256:f590f33787c76bee9c42cc6826ee887bc1f3b60ba5ed137af450a6c0a79cdb57
 # renovate: datasource=github-releases depName=aptible/supercronic
-ARG SUPERCRONIC_VERSION=v0.2.45
+ARG SUPERCRONIC_VERSION=v0.2.47
 # renovate: datasource=docker depName=golang
-ARG SUPERCRONIC_BUILDER_IMAGE=golang:1.26.4-alpine
+ARG SUPERCRONIC_BUILDER_IMAGE=golang:1.26.5-alpine
 
 ARG VERSION=dev
 
@@ -33,7 +33,7 @@ FROM ${SUPERCRONIC_BUILDER_IMAGE} AS supercronic-builder
 
 ARG SUPERCRONIC_VERSION
 
-RUN GOTOOLCHAIN=go1.26.4 CGO_ENABLED=0 go install github.com/aptible/supercronic@${SUPERCRONIC_VERSION}
+RUN GOTOOLCHAIN=go1.26.5 CGO_ENABLED=0 go install github.com/aptible/supercronic@${SUPERCRONIC_VERSION}
 
 # hadolint ignore=DL3006
 FROM amazonlinux:2023@${AL2023_IMAGE_DIGEST}
