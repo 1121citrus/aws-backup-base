@@ -51,10 +51,36 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+@test "logging include is installed and readable" {
+    run docker run --rm "${IMAGE}" test -r /usr/local/include/logging
+    [ "$status" -eq 0 ]
+}
+
+@test "path include is installed and readable" {
+    run docker run --rm "${IMAGE}" test -r /usr/local/include/path
+    [ "$status" -eq 0 ]
+}
+
 @test "common-functions defines is_true function" {
     run docker run --rm "${IMAGE}" bash -c \
         'source /usr/local/include/common-functions && type is_true'
     [ "$status" -eq 0 ]
     echo "output: ${output}"
     [[ "${output}" == *"is_true is a function"* ]]
+}
+
+@test "logging include defines log function" {
+    run docker run --rm "${IMAGE}" bash -c \
+        'source /usr/local/include/logging && type log'
+    [ "$status" -eq 0 ]
+    echo "output: ${output}"
+    [[ "${output}" == *"log is a function"* ]]
+}
+
+@test "path include defines path-prepend function" {
+    run docker run --rm "${IMAGE}" bash -c \
+        'source /usr/local/include/path && type path-prepend'
+    [ "$status" -eq 0 ]
+    echo "output: ${output}"
+    [[ "${output}" == *"path-prepend is a function"* ]]
 }

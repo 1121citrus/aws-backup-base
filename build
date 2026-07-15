@@ -647,6 +647,8 @@ if [[ "${LINT}" == "true" ]]; then
             --shell=bash \
             --exclude=SC1090,SC1091,SC2148 \
  \
+            include/logging \
+            include/path \
             src/common-functions \
             src/healthcheck-base \
             src/startup-base \
@@ -726,6 +728,8 @@ if [[ "${SMOKE}" == "true" ]]; then
         echo "[DRY RUN] docker run --rm \"${full_image}:${VERSION}\" bash -c 'bash --version | head -1'" >&2
         echo "[DRY RUN] docker run --rm \"${full_image}:${VERSION}\" test -x /usr/local/bin/healthcheck-base" >&2
         echo "[DRY RUN] docker run --rm \"${full_image}:${VERSION}\" test -x /usr/local/bin/startup-base" >&2
+        echo "[DRY RUN] docker run --rm \"${full_image}:${VERSION}\" test -r /usr/local/include/logging" >&2
+        echo "[DRY RUN] docker run --rm \"${full_image}:${VERSION}\" test -r /usr/local/include/path" >&2
         echo "[DRY RUN] docker run --rm \"${full_image}:${VERSION}\" test -r /usr/local/include/common-functions" >&2
     else
         docker run --rm "${full_image}:${VERSION}" aws --version
@@ -733,6 +737,8 @@ if [[ "${SMOKE}" == "true" ]]; then
         docker run --rm "${full_image}:${VERSION}" bash -c 'bash --version | head -1'
         docker run --rm "${full_image}:${VERSION}" test -x /usr/local/bin/healthcheck-base
         docker run --rm "${full_image}:${VERSION}" test -x /usr/local/bin/startup-base
+        docker run --rm "${full_image}:${VERSION}" test -r /usr/local/include/logging
+        docker run --rm "${full_image}:${VERSION}" test -r /usr/local/include/path
         docker run --rm "${full_image}:${VERSION}" test -r /usr/local/include/common-functions
     fi
 fi

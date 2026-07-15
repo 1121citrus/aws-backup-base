@@ -92,6 +92,7 @@ RUN set -eux; \
     && rm -rf /var/cache/dnf \
     && echo "[INFO] completed installing aws-backup-base"
 
+COPY --chmod=644 ./include/ /usr/local/include/
 COPY --chmod=644 ./src/common-functions /usr/local/include/
 COPY --chmod=755 ./src/healthcheck-base ./src/startup-base /usr/local/bin/
 
