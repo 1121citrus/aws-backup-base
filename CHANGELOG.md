@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-07-20
+
+### Added
+
+- `run_once_before_schedule` in `common-functions`: derivative images
+  call this once from their scheduler-mode entry point, right before
+  handing off to supercronic, to run the backup command once for real
+  immediately. `touch_healthcheck_startup_marker`'s grace period
+  expires (default 900s) long before the first real run of an
+  infrequent schedule like `@daily` or `*/8 hours`, so a freshly
+  deployed container previously sat unhealthy for hours waiting on a
+  scheduled run that hadn't happened yet.
+
 ## [1.1.9] - 2026-07-10
 
 ### Changed

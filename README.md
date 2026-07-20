@@ -73,14 +73,26 @@ source /usr/local/include/common-functions
 function run_scheduler() {
     # ... write env file, install crontab ...
     touch_healthcheck_startup_marker
+    run_once_before_schedule /usr/local/bin/my-backup
     exec supercronic "${crontab_file}"
 }
 ```
 
-Without this call, `HEALTHCHECK_STARTUP_FILE` is set but the file never
-exists, so the grace-period branch in `has_cronjob_run()` is dead code:
-every fresh deployment reports unhealthy until the first scheduled
-backup completes, which can be a full cron period away.
+Without the `touch_healthcheck_startup_marker` call, `HEALTHCHECK_STARTUP_FILE`
+is set but the file never exists, so the grace-period branch in
+`has_cronjob_run()` is dead code: every fresh deployment reports
+unhealthy until the first scheduled backup completes.
+
+That grace period is still only `HEALTHCHECK_STARTUP_GRACE_SECONDS`
+(default 900s) long. For a schedule less frequent than that —
+`@daily`, `*/8 hours` — the grace period expires long before the first
+real run, and the container flips unhealthy anyway. Call
+`run_once_before_schedule COMMAND [ARGS...]` right before the
+`exec supercronic` hand-off to run the backup once for real: it writes
+a genuine `HEALTHCHECK_SUCCESS_FILE` marker within minutes of startup,
+independent of how far away the next scheduled run is. A failure here
+is logged but does not block scheduler mode — the regular schedule
+still gets its own future attempts.
 
 ## `startup-base` environment variables
 
