@@ -116,6 +116,36 @@ setup() {
 }
 
 # ---------------------------------------------------------------------------
+# run_once_before_schedule
+# ---------------------------------------------------------------------------
+
+@test "run_once_before_schedule: runs the given command" {
+    local marker="${BATS_TEST_TMPDIR}/ran"
+    run_once_before_schedule touch "${marker}"
+    [ -f "${marker}" ]
+}
+
+@test "run_once_before_schedule: returns 0 when the command succeeds" {
+    run run_once_before_schedule true
+    [ "$status" -eq 0 ]
+}
+
+@test "run_once_before_schedule: returns 0 even when the command fails" {
+    run run_once_before_schedule false
+    [ "$status" -eq 0 ]
+}
+
+@test "run_once_before_schedule: logs a warning when the command fails" {
+    run run_once_before_schedule false
+    [[ "$output" == *"[WARN]"*"immediate pre-schedule run failed"* ]]
+}
+
+@test "run_once_before_schedule: returns 1 when called with no command" {
+    run run_once_before_schedule
+    [ "$status" -eq 1 ]
+}
+
+# ---------------------------------------------------------------------------
 # touch_healthcheck_startup_marker
 # ---------------------------------------------------------------------------
 

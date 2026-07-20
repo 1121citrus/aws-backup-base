@@ -56,6 +56,28 @@ function is_true() {
     echo "${1:?Need argument}" | grep -Eiq '^\s*(1|true|t|yes|y)\s*$'
 }
 
+function run_once_before_schedule() {
+    # touch_healthcheck_startup_marker's grace period is a cheap, instant
+    # placeholder -- it expires (default 900s) long before the first real
+    # run of an infrequent schedule (daily, every-8-hours), so a fresh
+    # deployment would flip unhealthy waiting on the grace period alone.
+    # Run the backup command once for real, right here, before scheduler
+    # mode hands off to supercronic, so a genuine HEALTHCHECK_SUCCESS_FILE
+    # marker exists well within the grace window. A failure here is logged
+    # but does not block scheduler mode -- the regular schedule gets its
+    # own future attempts regardless of how this first one goes.
+    # Usage:
+    #   run_once_before_schedule COMMAND [ARGS...]
+    [[ $# -gt 0 ]] || return 1
+    info "running once immediately before scheduler hand-off: $*"
+    if "$@"; then
+        info "immediate pre-schedule run succeeded"
+    else
+        log WARN "immediate pre-schedule run failed (continuing to scheduler mode regardless): $*"
+    fi
+    return 0
+}
+
 function touch_healthcheck_startup_marker() {
     # healthcheck-base's grace-period check reads HEALTHCHECK_STARTUP_FILE
     # to tell "just started, first backup hasn't run yet" apart from
