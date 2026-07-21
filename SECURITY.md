@@ -65,17 +65,25 @@ in the AL2023 repositories, the CVE is temporarily recorded in
 
 Current temporary Trivy suppressions include:
 
-- `CVE-2026-4046` (`glibc`, pending `2.34-231.amzn2023.0.4`)
-- `CVE-2026-33845` (`gnutls`, pending `3.8.3-8.amzn2023.0.4`)
-- `CVE-2026-48863` (`libsolv`, pending `0.7.22-1.amzn2023.0.4`)
-- `CVE-2026-48864` (`libsolv`, pending `0.7.22-1.amzn2023.0.4`)
-- `CVE-2026-9149` (`libsolv`, pending `0.7.22-1.amzn2023.0.4`)
-- `CVE-2026-9150` (`libsolv`, pending `0.7.22-1.amzn2023.0.4`)
-- `CVE-2026-3644` (`python3`, pending `3.9.25-1.amzn2023.0.5`)
-- `CVE-2026-4786` (`python3`, pending `3.9.25-1.amzn2023.0.5`)
-- `CVE-2026-6100` (`python3`, pending `3.9.25-1.amzn2023.0.5`)
-- `CVE-2026-1703` (`python3-pip-wheel`, pending
-  `21.3.1-2.amzn2023.0.17`)
+- `CVE-2026-58010` through `CVE-2026-58016` (`glib2`, pending
+  `2.82.2-770.amzn2023`)
+- `CVE-2026-54369`, `CVE-2026-54370` (`libacl`, pending
+  `2.4.0-1.amzn2023.0.1`)
+- `CVE-2026-0864`, `CVE-2026-11940`, `CVE-2026-11972`, `CVE-2026-3276`,
+  `CVE-2026-9669` (`python3`/`python3-libs`, pending
+  `3.9.25-1.amzn2023.0.8`)
+
+The ten CVEs previously listed here (`glibc` CVE-2026-4046, `gnutls`
+CVE-2026-33845, `libsolv` CVE-2026-48863/48864/9149/9150, `python3`
+CVE-2026-3644/4786/6100, `python3-pip-wheel` CVE-2026-1703) are fixed
+in the installed RPM versions as of the 2026-07-21 AL2023 digest
+refresh — confirmed via `rpm -q` inside the built image against each
+entry's own previously documented "pending" version — and their
+`.trivyignore` entries have been removed accordingly. The digest
+refresh itself surfaced the newer batch above: `./build`'s own Trivy
+stage reuses a long-lived local DB cache (`--skip-db-update`) that
+predated their disclosure, so they were only caught by re-scanning
+with a freshly updated Trivy DB (`./build --cache reset=trivy`).
 
 Remove each suppression as soon as the corresponding fixed RPM is
 available in AL2023 and adopted by the image build.

@@ -19,8 +19,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 # Global ARGs — available to all FROM directives.
-# Amazon Linux 2023 (updated 2026-07-08)
-ARG AL2023_IMAGE_DIGEST=sha256:f590f33787c76bee9c42cc6826ee887bc1f3b60ba5ed137af450a6c0a79cdb57
+# Amazon Linux 2023 (updated 2026-07-21)
+ARG AL2023_IMAGE_DIGEST=sha256:0c74e9fbba754003cfa179fd5cc65be7790d7248443276948704b8a858b298e5
 # renovate: datasource=github-releases depName=aptible/supercronic
 ARG SUPERCRONIC_VERSION=v0.2.47
 # renovate: datasource=docker depName=golang

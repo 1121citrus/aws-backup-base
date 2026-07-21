@@ -1,31 +1,30 @@
 # CVEs with fix versions identified by Trivy but not yet available in the
 # AL2023 package repositories.  Remove entries once the fixed packages land.
+#
+# All entries below found via a fresh Trivy DB pull (bypassing the local
+# --skip-db-update cache ./build normally uses) against the
+# 2026-07-21 AL2023 digest refresh.
 
-# glibc: DoS via iconv() — fix: 2.34-231.amzn2023.0.4 (not yet in repo)
-CVE-2026-4046
+# glib2: multiple buffer over-read / path traversal / integer underflow
+# issues — fix: 2.82.2-770.amzn2023 (not yet in repo)
+CVE-2026-58010
+CVE-2026-58011
+CVE-2026-58012
+CVE-2026-58013
+CVE-2026-58014
+CVE-2026-58015
+CVE-2026-58016
 
-# gnutls: DTLS zero-length fragment DoS — fix: 3.8.3-8.amzn2023.0.4
-# (not yet in repo)
-CVE-2026-33845
+# libacl: symlink traversal privilege escalation / TOCTOU — fix:
+# 2.4.0-1.amzn2023.0.1 (not yet in repo)
+CVE-2026-54369
+CVE-2026-54370
 
-# libsolv: multiple parser/signature overflows — fix: 0.7.22-1.amzn2023.0.4
-# (not yet in repo)
-CVE-2026-48863
-CVE-2026-48864
-CVE-2026-9149
-CVE-2026-9150
-
-# cpython: incomplete control-char validation in http.cookies
-# fix: python3 3.9.25-1.amzn2023.0.5
-CVE-2026-3644
-
-# cpython: arbitrary code execution via command injection in webbrowser.open()
-# fix: python3 3.9.25-1.amzn2023.0.5
-CVE-2026-4786
-
-# cpython: arbitrary code execution/info disclosure via use-after-free in
-# decompression — fix: python3 3.9.25-1.amzn2023.0.5
-CVE-2026-6100
-
-# pip-wheel: LOW — fix: python3-pip-wheel 21.3.1-2.amzn2023.0.17 (not yet in repo)
-CVE-2026-1703
+# cpython (python3, python3-libs): configparser injection, tarfile
+# extractall filter bypass/DoS, unicodedata DoS, BZ2 decompression
+# out-of-bounds write — fix: 3.9.25-1.amzn2023.0.8 (not yet in repo)
+CVE-2026-0864
+CVE-2026-11940
+CVE-2026-11972
+CVE-2026-3276
+CVE-2026-9669
