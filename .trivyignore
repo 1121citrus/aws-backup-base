@@ -3,7 +3,11 @@
 #
 # All entries below found via a fresh Trivy DB pull (bypassing the local
 # --skip-db-update cache ./build normally uses) against the
-# 2026-07-21 AL2023 digest refresh.
+# 2026-07-21 AL2023 digest refresh. The openssl-fips-provider-latest /
+# openssl-libs entry was added after the 2026-09-03 digest refresh
+# (sha256:181f98c...ce284) surfaced it as the only new gating finding;
+# the glib2/libacl/cpython entries below were not re-verified against
+# the new digest and are left in place unchanged.
 
 # glib2: multiple buffer over-read / path traversal / integer underflow
 # issues — fix: 2.82.2-770.amzn2023 (not yet in repo)
@@ -28,3 +32,8 @@ CVE-2026-11940
 CVE-2026-11972
 CVE-2026-3276
 CVE-2026-9669
+
+# openssl-fips-provider-latest / openssl-libs: Denial of Service via
+# unbounded memory growth in QUIC server — fix: 1:3.5.7-2.amzn2023.0.2
+# (not yet in repo as of the 2026-09-03 AL2023 digest refresh)
+CVE-2026-14456

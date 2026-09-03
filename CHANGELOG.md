@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-09-03
+
+### Fixed
+
+- Refreshed `AL2023_IMAGE_DIGEST` to the 2026-09-03 `amazonlinux:2023`
+  digest (`sha256:181f98c48832fe926f8ca3b6ffeafcce128e96e77b93d08fbe9a9bc9403ce284`),
+  resolving 18 of the 19 gating Trivy HIGH findings surfaced against
+  the previous 2026-07-21 digest (gawk, glib2, openssl,
+  python3/python3-libs/python3.12/python3.12-libs, python3-rpm/rpm,
+  rpm-build-libs, rpm-libs, rpm-sign-libs). The one remaining finding
+  (`CVE-2026-14456`, openssl-fips-provider-latest/openssl-libs — fix
+  `1:3.5.7-2.amzn2023.0.2` not yet published to the AL2023 repos) is
+  tracked in `.trivyignore`.
+- Bumped `SUPERCRONIC_VERSION` from `v0.2.47` to `v0.2.49` and the
+  `SUPERCRONIC_BUILDER_IMAGE` from `golang:1.26.5-alpine` to
+  `golang:1.27.0-alpine` (matching the fix already applied in
+  `rotate-aws-backups`), resolving all 8 gating Go `stdlib` HIGH
+  findings in the `supercronic` gobinary (CVE-2026-33818,
+  CVE-2026-39821, CVE-2026-46600, CVE-2026-56853, CVE-2026-56858,
+  CVE-2026-56859, CVE-2026-56860, CVE-2026-56862).
+- Updated `.trivyignore` to add the new openssl-fips-provider-latest
+  entry pending an upstream AL2023 package release. The pre-existing
+  glib2, libacl, and cpython entries are left in place unchanged;
+  their absence from the fresh gating scan was not independently
+  re-verified against the new digest and may still apply.
+
 ## [1.2.0] - 2026-07-20
 
 ### Added
