@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-10-28
+
+### Fixed
+
+- Refreshed `AL2023_IMAGE_DIGEST` to the 2026-10-28 `amazonlinux:2023`
+  digest (`sha256:c04a1012acc483977f61f7f91c28624a39a621e56a59781319a75dec528be9b6`),
+  resolving 79 of the 96 gating Trivy HIGH findings surfaced against the
+  previous 2026-09-03 digest.
+- Fixed `supercronic`'s embedded Go stdlib `GOTOOLCHAIN=go1.27.0` pin,
+  which silently overrode `SUPERCRONIC_BUILDER_IMAGE` and kept the
+  compiled binary on Go 1.27.0 regardless of the builder image tag.
+  Changed to `GOTOOLCHAIN=local` (use whatever Go ships in the pinned
+  builder image) and bumped `SUPERCRONIC_BUILDER_IMAGE` to
+  `golang:1.27.3-alpine`, resolving all 4 gating Go `stdlib` HIGH
+  findings in the `supercronic` gobinary (CVE-2026-111943,
+  CVE-2026-78667, CVE-2026-78669, CVE-2026-97031).
+- Replaced `.trivyignore`'s resolved entries (`glib2`, `libacl`,
+  `python3`/`python3-libs` configparser/tarfile/unicodedata/BZ2,
+  `openssl-fips-provider-latest`/`openssl-libs` CVE-2026-14456 — all now
+  fixed by the digest refresh above) with the 11 CVEs confirmed via
+  `dnf list --showduplicates` to have no AL2023 RPM build yet
+  (`ca-certificates`, `curl-minimal`/`libcurl-minimal`, `cyrus-sasl-lib`,
+  `libcap`, `pcre2`/`pcre2-syntax`, `python3`/`python3-libs`).
+- Documented (in `SECURITY.md`, not suppressed) every remaining Grype
+  finding: `python3-pygments`/`python3-setuptools` (3 CVEs, genuinely
+  unpatched upstream) and the `perl-*` family (ALAS2023-2026-3279,
+  CVE-2026-15534/19487 — a mirror-propagation gap: ALAS already lists the
+  `.0.11` fix, but the `amazonlinux:2023` repo mirror still serves `.0.10`
+  on both architectures). None are suppressed in `.grype.yaml`, which is
+  reserved for confirmed version-string false positives.
+- Corrected `SECURITY.md`'s vulnerability-scanning table: Grype runs on
+  every build but has no `--fail-on` flag in `./build`, so it cannot
+  actually block a build (it was documented as "Blocking"); Docker Scout
+  is referenced in `./build --help` but has no implemented scan stage at
+  all.
+
 ## [1.2.1] - 2026-09-03
 
 ### Fixed

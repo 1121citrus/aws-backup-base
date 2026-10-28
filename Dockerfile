@@ -19,12 +19,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 # Global ARGs — available to all FROM directives.
-# Amazon Linux 2023 (updated 2026-09-03)
-ARG AL2023_IMAGE_DIGEST=sha256:181f98c48832fe926f8ca3b6ffeafcce128e96e77b93d08fbe9a9bc9403ce284
+# Amazon Linux 2023 (updated 2026-10-28)
+ARG AL2023_IMAGE_DIGEST=sha256:c04a1012acc483977f61f7f91c28624a39a621e56a59781319a75dec528be9b6
 # renovate: datasource=github-releases depName=aptible/supercronic
 ARG SUPERCRONIC_VERSION=v0.2.49
 # renovate: datasource=docker depName=golang
-ARG SUPERCRONIC_BUILDER_IMAGE=golang:1.27.0-alpine
+ARG SUPERCRONIC_BUILDER_IMAGE=golang:1.27.3-alpine
 
 ARG VERSION=dev
 
@@ -33,7 +33,7 @@ FROM ${SUPERCRONIC_BUILDER_IMAGE} AS supercronic-builder
 
 ARG SUPERCRONIC_VERSION
 
-RUN GOTOOLCHAIN=go1.27.0 CGO_ENABLED=0 go install github.com/aptible/supercronic@${SUPERCRONIC_VERSION}
+RUN GOTOOLCHAIN=local CGO_ENABLED=0 go install github.com/aptible/supercronic@${SUPERCRONIC_VERSION}
 
 # hadolint ignore=DL3006
 FROM amazonlinux:2023@${AL2023_IMAGE_DIGEST}
