@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.3] - 2026-11-15
+
 ### Fixed
 
 - Refreshed `AL2023_IMAGE_DIGEST` to the 2026-11-15 `amazonlinux:2023`
@@ -239,7 +241,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.8...HEAD
+[Unreleased]: https://github.com/1121citrus/aws-backup-base/compare/v1.2.3...HEAD
+[1.2.3]: https://github.com/1121citrus/aws-backup-base/compare/v1.2.2...v1.2.3
+[1.2.2]: https://github.com/1121citrus/aws-backup-base/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/1121citrus/aws-backup-base/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.9...v1.2.0
+[1.1.9]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.8...v1.1.9
 [1.1.8]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.7...v1.1.8
 [1.1.7]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.6...v1.1.7
 [1.1.6]: https://github.com/1121citrus/aws-backup-base/compare/v1.1.5...v1.1.6
