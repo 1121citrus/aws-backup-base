@@ -19,12 +19,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 # Global ARGs — available to all FROM directives.
-# Amazon Linux 2023 (updated 2026-10-28)
-ARG AL2023_IMAGE_DIGEST=sha256:c04a1012acc483977f61f7f91c28624a39a621e56a59781319a75dec528be9b6
+# Amazon Linux 2023 (updated 2026-11-15; image release 2023.12.20261102)
+ARG AL2023_IMAGE_DIGEST=sha256:3ccfbe800f864982b0a4e124a614b2382518cbd04b3c1cd35202bd46f392675b
 # renovate: datasource=github-releases depName=aptible/supercronic
 ARG SUPERCRONIC_VERSION=v0.2.49
 # renovate: datasource=docker depName=golang
-ARG SUPERCRONIC_BUILDER_IMAGE=golang:1.27.3-alpine
+ARG SUPERCRONIC_BUILDER_IMAGE=golang:1.27.4-alpine
 
 ARG VERSION=dev
 
@@ -73,12 +73,19 @@ LABEL org.opencontainers.image.title="aws-backup-base" \
 COPY --from=supercronic-builder --chmod=755 /go/bin/supercronic /usr/local/bin/supercronic
 
 # Install runtime dependencies and supercronic.
+# --releasever=latest: AL2023 locks dnf to the base image's release, so a
+# plain `dnf upgrade` cannot reach security fixes published after the
+# pinned image was cut. Upgrading to the latest release closes that gap.
+# --exclude=python3-pygments: an optional "Recommends" of
+# python3-prompt-toolkit that nothing here uses; it carries an unpatched
+# Grype MEDIUM finding (GHSA-mrwq-x4v8-fh7p).
 # DL3041: version constraints omitted — AL2023 repo pins are stable and exact
 # versions would break on every AL2023 point release.
 # hadolint ignore=DL3041
 RUN set -eux; \
-    dnf upgrade -y --quiet && \
-    dnf install -y --quiet --allowerasing \
+    dnf upgrade -y --quiet --releasever=latest && \
+    dnf install -y --quiet --allowerasing --releasever=latest \
+        --exclude=python3-pygments \
         awscli-2 \
         findutils \
         gnupg2 \

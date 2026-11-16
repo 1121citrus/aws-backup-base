@@ -1,44 +1,15 @@
 # CVEs with fix versions identified by Trivy but not yet available in the
 # AL2023 package repositories.  Remove entries once the fixed packages land.
 #
-# All entries below verified against a fresh Trivy DB pull (bypassing the
-# local --skip-db-update cache ./build normally uses) following the
-# 2026-10-28 AL2023 digest refresh (sha256:c04a1012...be9b6). Confirmed via
-# `dnf list --showduplicates <pkg>` against the live AL2023 repo mirror that
-# no build matching the "Fixed Version" Trivy reports exists yet. All
-# previously-listed entries (glib2, libacl, cpython configparser/tarfile/
-# unicodedata/BZ2, openssl-fips-provider-latest QUIC DoS) are resolved by
-# this digest refresh and have been removed.
-
-# ca-certificates: Firefox website spoofing via failure to block
-# compromised intermediate certificates — fix: 2025.2.76-1.0.amzn2023.0.4
-# (not yet in repo)
-CVE-2026-113470
-
-# curl-minimal / libcurl-minimal: HTTP/2 upload Use-After-Free — fix:
-# 8.21.0-5.amzn2023.0.3 (not yet in repo)
-CVE-2026-92392
-
-# cyrus-sasl-lib: heap buffer overflow in add_to_challenge() allows
-# malicious server to crash client — fix: 2.1.27-18.amzn2023.0.4 (not yet
-# in repo)
-CVE-2026-107161
-
-# libcap: upstream Go net/http advisories misattributed by Trivy's AL2023
-# feed to this package's NVR — fix: 2.73-1.amzn2023.0.8 (not yet in repo)
-CVE-2026-78659
-CVE-2026-78667
-CVE-2026-94440
-
-# pcre2 / pcre2-syntax: out-of-bounds write/read via crafted regular
-# expressions and invalid UTF matching — fix: 10.40-1.amzn2023.0.5 (not
-# yet in repo)
-CVE-2026-103111
-CVE-2026-86145
-CVE-2026-89156
-CVE-2026-89160
-
-# python3 / python3-libs: certificate verification bypass via missing
-# server_hostname validation in SSLContext.wrap_bio() — fix:
-# 3.9.25-1.amzn2023.0.11 (not yet in repo)
-CVE-2026-19553
+# 2026-11-15: no suppressions needed. After the AL2023 digest refresh
+# (sha256:3ccfbe80...2675b) and the switch to
+# `dnf upgrade --releasever=latest`, an unfiltered Trivy scan (no ignore
+# file, MEDIUM and above, fixable only) reports zero findings. All 11
+# previous entries (ca-certificates, curl-minimal/libcurl-minimal,
+# cyrus-sasl-lib, libcap, pcre2/pcre2-syntax, python3/python3-libs) are
+# fixed in the installed RPMs and were removed.
+#
+# Add new entries only after confirming with
+# `dnf --releasever=latest list --showduplicates <pkg>` inside a fresh
+# `amazonlinux:2023` container that no fixed build exists. Give each entry
+# a dated justification comment.

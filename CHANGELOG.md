@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Refreshed `AL2023_IMAGE_DIGEST` to the 2026-11-15 `amazonlinux:2023`
+  index digest
+  (`sha256:3ccfbe800f864982b0a4e124a614b2382518cbd04b3c1cd35202bd46f392675b`,
+  release `2023.12.20261102`).
+- Added `--releasever=latest` to the `dnf upgrade` and `dnf install`
+  commands. AL2023 locks `dnf` to the base image's release, so even the
+  newest image could not reach the fixed `glibc`, `rpm`, and
+  `sqlite-libs` builds. This resolves all 39 gating Trivy HIGH findings
+  (`glibc` CVE-2026-86805; `rpm`/`python3-rpm` CVE-2026-103242, -84837,
+  -95519, -95520, -95521; `sqlite-libs` CVE-2026-119371, -119372,
+  -119373, -119375, -119376, -119378).
+- Removed all 11 `.trivyignore` entries; the fixed RPMs are now
+  installed and an unfiltered Trivy scan reports zero findings.
+- Bumped `SUPERCRONIC_BUILDER_IMAGE` to `golang:1.27.4-alpine`, resolving
+  Grype finding GO-2026-6859 in the `supercronic` Go `stdlib`.
+- Excluded `python3-pygments` (an unused optional dependency of
+  `python3-prompt-toolkit`), resolving Grype MEDIUM CVE-2022-40896
+  (GHSA-mrwq-x4v8-fh7p).
+- Updated `SECURITY.md` to describe the new upgrade behavior and the
+  remaining unfixed `python3-setuptools` Grype findings.
+
 ## [1.2.2] - 2026-10-28
 
 ### Fixed
